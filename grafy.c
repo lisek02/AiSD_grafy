@@ -11,6 +11,14 @@ struct list
 };
 typedef struct list slistEl;
 
+struct list2
+{
+    int v1;
+    int v2;
+    struct list2 *next;
+};
+typedef struct list2 sedgeList;
+
 void adjmatrix_gen(int n, int *adjmatrix[])     //generowanie macierzy sasiedztwa
 {
     for (i=0; i<n; i++)
@@ -36,7 +44,7 @@ void adjmatrix_print(int n, int *adjmatrix[])      //wyswietlanie macierzy sasie
     }
 }
 
-void adjlist_gen(int n, int* adjlist, int** adjmatrix)
+void adjList_gen(int n, int* adjlist, int** adjmatrix)      //tworzenie listy sasiedztwa
 {
     slistEl *newEl;
     for (i=0; i<n; i++)
@@ -59,7 +67,7 @@ void adjlist_gen(int n, int* adjlist, int** adjmatrix)
     }
 }
 
-void adjlist_print(int n, int* adjlist)
+void adjList_print(int n, int* adjlist)         //wyswietlanie listy sasiedztwa
 {
     slistEl *currEl;
     printf("\nLISTA SASIEDZTWA: \n");
@@ -75,6 +83,38 @@ void adjlist_print(int n, int* adjlist)
         printf("\n");
     }
 }
+
+void edgeList_gen(int n, sedgeList **head, int **adjmatrix)         //tworzenie listy krawedzi
+{
+    sedgeList *newEE;
+    for (i=0; i<n; i++)
+    {
+        for (j=0; j<n; j++)
+        {
+            if (adjmatrix[i][j] == 1)
+            {
+                newEE = (sedgeList*)malloc(sizeof(sedgeList));
+                newEE->v1 = i;
+                newEE->v2 = j;
+                newEE->next = *head;
+                *head = newEE;
+            }
+        }
+    }
+}
+
+void edgeList_print(sedgeList *head)        //wyswietlanie listy krawedzi
+{
+    sedgeList *currEE;
+    currEE = head;
+    printf("\nLISTA KRAWEDZI: \n");
+    while (currEE)
+    {
+        printf("%d->%d\n",currEE->v1,currEE->v2);
+        currEE = currEE->next;
+    }
+}
+
 int main()
 {
     srand(time(NULL));
@@ -100,8 +140,16 @@ int main()
     adjlist = (slistEl*)malloc(n*sizeof(slistEl));
 
     //LISTA SASIEDZTWA
-    adjlist_gen(n, adjlist, adjmatrix);
-    adjlist_print(n, adjlist);
+    adjList_gen(n, adjlist, adjmatrix);
+    adjList_print(n, adjlist);
+
+    //INICJALIZACJA -lista krawedzi
+    sedgeList *head, *newEE, *currEE;
+    head = NULL;
+
+    //LISTA KRAWEDZI
+    edgeList_gen(n, &head, adjmatrix);
+    edgeList_print(head);
 
     //ZWALNIANIE PAMIECI
     for (i=0; i<n; i++) free(adjmatrix[i]);
@@ -117,5 +165,16 @@ int main()
             free(toDel);
         }
     }
+
+    currEE = head;
+    sedgeList *tmp;
+    while (currEE)
+    {
+        tmp = currEE->next;
+        free(currEE);
+        currEE = tmp;
+    }
+
+
 
 }
