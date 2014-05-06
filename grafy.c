@@ -166,6 +166,19 @@ void adjList_print(int n, int* adjlist)         //wyswietlanie listy sasiedztwa
     }
 }
 
+void DFS_adjlist(int* adjlist[], int w)
+{
+    slistEl *tmp;
+    visited[w] = 1;
+    printf("%d",w);
+    tmp = adjlist[w];
+    while(tmp)
+    {
+        if (visited[tmp->value] == 0) DFS_adjlist(adjlist, tmp->value);
+        tmp = tmp->next;
+    }
+}
+
 void BFS_adjlist(int *adjlist, int w)
 {
     BFS_list *newEl, *tmp, *head, *tail;
@@ -276,6 +289,11 @@ int main()
     //LISTA SASIEDZTWA
     adjList_gen(n, adjlist, adjmatrix);
     adjList_print(n, adjlist);
+
+    for (i=0; i<n; i++) visited[i] = 0;
+    printf("----------\n");
+    DFS_adjlist(adjlist, 0);
+    printf("\n----------");
 
     for (i=0; i<n; i++) visited[i] = 0;
     printf("----------\n");
