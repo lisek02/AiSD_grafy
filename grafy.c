@@ -3,8 +3,8 @@
 #include <time.h>
 
 int i,j;
-int n;
-int *visited;
+int n, m;
+int *visited, tofind;
 
 struct list
 {
@@ -34,7 +34,11 @@ void adjmatrix_gen(int n, int *adjmatrix[])     //generowanie macierzy sasiedztw
     {
         for (j=0; j<n; j++)
         {
-            if ((((i+j) % 2) == 1) && (i<j)) adjmatrix[i][j] = 1;         //macierz gornotrojkatna
+            if ((((i+j) % 2) == 1) && (i<j))
+            {
+                adjmatrix[i][j] = 1;         //macierz gornotrojkatna
+                m+=1;
+            }
             else adjmatrix[i][j] = 0;
         }
     }
@@ -219,37 +223,91 @@ void BFS_adjlist(int *adjlist, int w)
     }
 }
 
-
-void edgeList_gen(int n, sedgeList **head, int **adjmatrix)         //tworzenie listy krawedzi
+void edgeList_gen(int n, int **edgeTab, int **adjmatrix)
 {
-    sedgeList *newEE;
+    int counter = 0;
     for (i=0; i<n; i++)
     {
         for (j=0; j<n; j++)
         {
             if (adjmatrix[i][j] == 1)
             {
-                newEE = (sedgeList*)malloc(sizeof(sedgeList));
-                newEE->v1 = i;
-                newEE->v2 = j;
-                newEE->next = *head;
-                *head = newEE;
+                edgeTab[counter][0] = i;
+                edgeTab[counter][1] = j;
+                counter+=1;
             }
         }
     }
 }
 
-void edgeList_print(sedgeList *head)        //wyswietlanie listy krawedzi
+void edgeList_print(int **edgeTab)        //wyswietlanie listy krawedzi
 {
-    sedgeList *currEE;
-    currEE = head;
     printf("\nLISTA KRAWEDZI: \n");
-    while (currEE)
+    for (i=0; i<m; i++)
     {
-        printf("%d->%d\n",currEE->v1,currEE->v2);
-        currEE = currEE->next;
+        printf("%d->%d\n",edgeTab[i][0],edgeTab[i][1]);
     }
 }
+
+void DFS_edgelist(int **edgeTab, int w)
+{
+    visited[edgeTab[w][0]] = 1;
+    printf("%d",edgeTab[w][0]);
+    tofind = edgeTab[w][1];
+    //w = edgeTab[w][1];
+    for (i=0; i<m; i++)
+    {
+        //if ((edgeTab[i][0] == edgeTab[w][1]) && (visited[edgeTab[i][0]] == 0)) DFS_edgelist(edgeTab, edgeTab[i][0]);
+        if ((edgeTab[i][0] == tofind) && (visited[tofind] == 0)) DFS_edgelist(edgeTab, i);
+    }
+    if(visited[tofind] == 0)
+    {
+        printf("%d",tofind);
+        visited[tofind] = 1;
+    }
+}
+
+void BFS_edgelist(int **edgeTab, int w)
+{
+    BFS_list *newEl, *head, *tail;
+
+    newEl = (BFS_list*)malloc(sizeof(BFS_list));
+    newEl->next = NULL;
+    newEl->value = w;
+    head = tail = newEl;
+
+    //tofind = edgeTab[w][1];
+    //visited[w] = 1;
+
+    while(head)
+    {
+        w = head->value;
+        newEl = head;
+        head = head->next;
+        if(!head) tail = NULL;
+        free(newEl);
+
+        //printf("%d",edgeTab[w][1]);
+        //tofind = edgeTab[w][0];
+        tofind = w;
+        printf("%d",tofind);
+
+        for (i=0; i<m; i++)
+        {
+            if ((edgeTab[i][0] == tofind) && (visited[edgeTab[i][1]] == 0))
+            {
+                newEl = (BFS_list*)malloc(sizeof(BFS_list));
+                newEl->next = NULL;
+                newEl->value = edgeTab[i][1];
+                if(!tail) head = newEl;
+                else tail->next = newEl;
+                tail = newEl;
+                visited[edgeTab[i][1]] = 1;
+            }
+        }
+    }
+}
+
 
 int main()
 {
@@ -257,6 +315,7 @@ int main()
     printf("Podaj liczbe wierzcholkow: \n");
     scanf("%d",&n);
     visited = (int*)malloc(n*sizeof(int));
+    m = 0;
 
     //INICJALIZACJA TABLICY n x n - macierz sasiedztwa
     int **adjmatrix;
@@ -272,14 +331,13 @@ int main()
     adjmatrix_print(n, adjmatrix);
 
     for (i=0; i<n; i++) visited[i] = 0;
-    printf("----------\n");
+    printf("----DFS----\n");
     DFS_adjmatrix(adjmatrix, 0);
-    printf("\n----------");
 
     for (i=0; i<n; i++) visited[i] = 0;
-    printf("----------\n");
+    printf("\n----BFS----\n");
     BFS_adjmatrix(adjmatrix, 0);
-    printf("\n----------");
+    printf("\n-----------\n");
 
     //INICJALIZACJA - lista sasiedztwa
     slistEl ** adjlist;
@@ -291,22 +349,33 @@ int main()
     adjList_print(n, adjlist);
 
     for (i=0; i<n; i++) visited[i] = 0;
-    printf("----------\n");
+    printf("----DFS----\n");
     DFS_adjlist(adjlist, 0);
-    printf("\n----------");
 
     for (i=0; i<n; i++) visited[i] = 0;
-    printf("----------\n");
+    printf("\n----BFS----\n");
     BFS_adjlist(adjlist, 0);
-    printf("\n----------");
+    printf("\n-----------\n");
 
     //INICJALIZACJA -lista krawedzi
-    sedgeList *head, *newEE, *currEE;
-    head = NULL;
+    int edgeTab[m];
+    for (i=0; i<m; i++)
+    {
+        edgeTab[i] = (int*)malloc(2*sizeof(int));
+    }
 
     //LISTA KRAWEDZI
-    edgeList_gen(n, &head, adjmatrix);
-    edgeList_print(head);
+    edgeList_gen(n, edgeTab, adjmatrix);
+    edgeList_print(edgeTab);
+
+    for (i=0; i<n; i++) visited[i] = 0;
+    printf("----DFS----\n");
+    DFS_edgelist(edgeTab, 0);
+
+    for (i=0; i<n; i++) visited[i] = 0;
+    printf("\n----BFS----\n");
+    BFS_edgelist(edgeTab, 0);
+    printf("\n-----------\n");
 
     //ZWALNIANIE PAMIECI
     for (i=0; i<n; i++) free(adjmatrix[i]);
@@ -323,6 +392,7 @@ int main()
         }
     }
 
+    /*
     currEE = head;
     sedgeList *tmp;
     while (currEE)
@@ -330,7 +400,7 @@ int main()
         tmp = currEE->next;
         free(currEE);
         currEE = tmp;
-    }
+    }*/
 
 
 
