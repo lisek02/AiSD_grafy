@@ -140,7 +140,7 @@ void adjList_gen(int n, int* adjlist, int** adjmatrix)      //tworzenie listy sa
 
     for (i=0; i<n; i++)
     {
-        for (j=0; j<n; j++)
+        for (j=n-1; j>0; j--)
         {
             if (adjmatrix[i][j] == 1)
             {
