@@ -183,9 +183,10 @@ void DFS_adjlist(int* adjlist[], int w)
     }
 }
 
-void BFS_adjlist(int *adjlist, int w)
+void BFS_adjlist(int *adjlist[], int w)
 {
     BFS_list *newEl, *tmp, *head, *tail;
+    slistEl *currEl;
 
     newEl = (BFS_list*)malloc(sizeof(BFS_list));
     newEl->next = NULL;
@@ -204,21 +205,20 @@ void BFS_adjlist(int *adjlist, int w)
 
         printf("%d",w);
 
-        //for (tmp = adjlist[w]; tmp; tmp = tmp->next)
-        tmp = adjlist[w];
-        while(tmp)
+        currEl = adjlist[w];
+        while(currEl)
         {
-            if (visited[tmp->value] == 0)
+            if (visited[currEl->value] == 0)
             {
                 newEl = (BFS_list*)malloc(sizeof(BFS_list));
                 newEl->next = NULL;
-                newEl->value = tmp->value;
+                newEl->value = currEl->value;
                 if(!tail) head = newEl;
                 else tail->next = newEl;
                 tail = newEl;
-                visited[tmp->value] = 1;
+                visited[currEl->value] = 1;
             }
-            tmp = tmp->next;
+            currEl = currEl->next;
         }
     }
 }
